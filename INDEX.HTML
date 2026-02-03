@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>GREENOX Café Ordering System</title>
+
+<style>
+    body {
+        margin: 0;
+        font-family: Arial, sans-serif;
+        background: #e8f5e9;
+    }
+
+    header {
+        background: #2e7d32;
+        color: white;
+        padding: 20px;
+        text-align: center;
+    }
+
+    .container {
+        display: flex;
+        padding: 20px;
+        gap: 20px;
+    }
+
+    .menu, .order {
+        background: white;
+        padding: 20px;
+        border-radius: 10px;
+        width: 50%;
+        box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    }
+
+    h2 {
+        color: #2e7d32;
+    }
+
+    .menu-item {
+        display: flex;
+        justify-content: space-between;
+        padding: 10px 0;
+        border-bottom: 1px solid #c8e6c9;
+    }
+
+    .menu-item button {
+        background: #2e7d32;
+        color: white;
+        border: none;
+        padding: 6px 12px;
+        border-radius: 5px;
+        cursor: pointer;
+    }
+
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 10px;
+    }
+
+    table th, table td {
+        border: 1px solid #c8e6c9;
+        padding: 8px;
+        text-align: center;
+    }
+
+    table th {
+        background: #2e7d32;
+        color: white;
+    }
+
+    .promo {
+        margin-top: 15px;
+        display: flex;
+        gap: 10px;
+    }
+
+    .promo input {
+        flex: 1;
+        padding: 8px;
+    }
+
+    .promo button {
+        background: #2e7d32;
+        color: white;
+        border: none;
+        padding: 8px 12px;
+        border-radius: 5px;
+        cursor: pointer;
+    }
+
+    .total {
+        text-align: right;
+        margin-top: 15px;
+        font-size: 18px;
+    }
+
+    .buttons {
+        text-align: center;
+        margin-top: 20px;
+    }
+
+    .buttons button {
+        background: #2e7d32;
+        color: white;
+        border: none;
+        padding: 10px 18px;
+        margin: 5px;
+        border-radius: 5px;
+        font-size: 15px;
+        cursor: pointer;
+    }
+
+    footer {
+        text-align: center;
+        padding: 15px;
+        color: #555;
+    }
+</style>
+</head>
+
+<body>
+
+<header>
+    <h1>GREENOX</h1>
+    <p>Eco-Friendly Café Ordering System 🌿</p>
+</header>
+
+<div class="container">
+
+    <!-- MENU -->
+    <div class="menu">
+        <h2>Menu</h2>
+
+        <div class="menu-item">
+            <span>Espresso Coffee</span>
+            <span>₹120</span>
+            <button onclick="addItem('Espresso Coffee',120)">Add</button>
+        </div>
+
+        <div class="menu-item">
+            <span>Cappuccino</span>
+            <span>₹150</span>
+            <button onclick="addItem('Cappuccino',150)">Add</button>
+        </div>
+
+        <div class="menu-item">
+            <span>Green Tea</span>
+            <span>₹100</span>
+            <button onclick="addItem('Green Tea',100)">Add</button>
+        </div>
+
+        <div class="menu-item">
+            <span>Veg Sandwich</span>
+            <span>₹180</span>
+            <button onclick="addItem('Veg Sandwich',180)">Add</button>
+        </div>
+    </div>
+
+    <!-- ORDER -->
+    <div class="order">
+        <h2>Your Order</h2>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>Item</th>
+                    <th>Qty</th>
+                    <th>Price</th>
+                    <th>Amount</th>
+                </tr>
+            </thead>
+            <tbody id="orderBody"></tbody>
+        </table>
+
+        <!-- PROMO CODE -->
+        <div class="promo">
+            <input type="text" id="promoCode" placeholder="Enter Promo Code">
+            <button onclick="applyPromo()">Apply</button>
+        </div>
+
+        <div class="total">
+            Subtotal: ₹ <span id="subtotal">0</span><br>
+            Discount: ₹ <span id="discount">0</span><br>
+            <strong>Total: ₹ <span id="total">0</span></strong>
+        </div>
+
+        <div class="buttons">
+            <button onclick="placeOrder()">Place Order</button>
+            <button onclick="clearOrder()">Clear Order</button>
+        </div>
+    </div>
+
+</div>
+
+<footer>
+    Thank you for ordering from GREENOX 🌱<br>
+    Eat Green • Live Clean
+</footer>
+
+<script>
+let order = {};
+let discountAmount = 0;
+
+function addItem(name, price) {
+    if (order[name]) {
+        order[name].qty++;
+    } else {
+        order[name] = { price, qty: 1 };
+    }
+    renderOrder();
+}
+
+function renderOrder() {
+    let body = document.getElementById("orderBody");
+    body.innerHTML = "";
+    let subtotal = 0;
+
+    for (let item in order) {
+        let qty = order[item].qty;
+        let price = order[item].price;
+        let amount = qty * price;
+        subtotal += amount;
+
+        body.innerHTML += `
+            <tr>
+                <td>${item}</td>
+                <td>${qty}</td>
+                <td>₹${price}</td>
+                <td>₹${amount}</td>
+            </tr>
+        `;
+    }
+
+    document.getElementById("subtotal").innerText = subtotal;
+    document.getElementById("discount").innerText = discountAmount;
+    document.getElementById("total").innerText = subtotal - discountAmount;
+}
+
+function applyPromo() {
+    let code = document.getElementById("promoCode").value.toUpperCase();
+    let subtotal = parseInt(document.getElementById("subtotal").innerText);
+
+    discountAmount = 0;
+
+    if (code === "GREEN10") {
+        discountAmount = subtotal * 0.10;
+        alert("GREEN10 applied! 10% OFF 🌿");
+    } 
+    else if (code === "ECO20") {
+        discountAmount = subtotal * 0.20;
+        alert("ECO20 applied! 20% OFF 🌱");
+    } 
+    else {
+        alert("Invalid Promo Code ❌");
+    }
+
+    renderOrder();
+}
+
+function clearOrder() {
+    order = {};
+    discountAmount = 0;
+    document.getElementById("promoCode").value = "";
+    renderOrder();
+}
+
+function placeOrder() {
+    if (Object.keys(order).length === 0) {
+        alert("Please add items to your order!");
+        return;
+    }
+    alert("Order placed successfully! 🌿");
+    clearOrder();
+}
+</script>
+
+</body>
+</html>
